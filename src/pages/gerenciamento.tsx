@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext";
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import NextImage from "next/image";
@@ -12,6 +12,13 @@ function Gerenciamento() {
     const { logout } = useAuth();
     const [openParticipantModal, setOpenParticipantModal] = useState<boolean>(false);
     const [participant, setParticipant] = useState<ParticipantModel>(ParticipantModel.empty());
+    const [participants, setParticipants] = useState<ParticipantModel[]>([]);
+
+    useEffect(() => {
+        fetch("/api/participants")
+            .then((res) => res.json())
+            .then((data) => setParticipants(data));
+    }, []);
 
     async function signOut(event: any) {
         try {
@@ -31,6 +38,17 @@ function Gerenciamento() {
 
     async function onSaveParticipant() {
         try {
+            fetch("/api/participants/add", {
+                method: "POST",
+                body: JSON.stringify(participant)
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    fetch("/api/participants")
+                        .then((res) => res.json())
+                        .then((data) => setParticipants(data));
+                });
+
             setOpenParticipantModal(false);
             setParticipant(ParticipantModel.empty());
         } catch (error) {
@@ -183,7 +201,11 @@ function Gerenciamento() {
                         </div>
                     </div>
                     <div className="w-full h-full space-y-2 py-2">
-                        <Card image={""} name="Gabriel Castellani de Oliveira" number={1} />
+                        {participants?.map(participant => {
+                            return (
+                                <Card key={participant.guid} image={""} name={participant.name} number={1} />
+                            );
+                        })}
                     </div>
                 </div>
             </div>
