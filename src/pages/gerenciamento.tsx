@@ -1,13 +1,17 @@
 import { useAuth } from "../context/AuthContext";
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import NextImage from "next/image";
 import { LogoutIcon } from "@heroicons/react/solid";
 import Card from "../components/Card";
+import ParticipantModel from "../data/models/participantModel";
+import ParticipantModal from "../components/modals/ParticipantModal";
 
 function Gerenciamento() {
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
+    const [openParticipantModal, setOpenParticipantModal] = useState<boolean>(false);
+    const [participant, setParticipant] = useState<ParticipantModel>(ParticipantModel.empty());
 
     async function signOut(event: any) {
         try {
@@ -19,8 +23,31 @@ function Gerenciamento() {
         }
     }
 
+    function onNewParticipant(event: any) {
+        event.preventDefault();
+        setParticipant(ParticipantModel.empty());
+        setOpenParticipantModal(true);
+    }
+
+    async function onSaveParticipant() {
+        try {
+            setOpenParticipantModal(false);
+            setParticipant(ParticipantModel.empty());
+        } catch (error) {
+            throw error;
+        }
+    }
+
     return (
         <div className="h-screen w-screen flex flex-row bg-white overflow-hidden">
+            <ParticipantModal
+                openModal={openParticipantModal}
+                setOpenModal={setOpenParticipantModal}
+                participant={participant}
+                setParticipant={setParticipant}
+                onClickSave={onSaveParticipant}
+            />
+
             <div className="h-full w-1/2">
                 <div className="relative z-10 bg-white w-full h-full">
                     <Popover className="h-1/5">
@@ -115,7 +142,7 @@ function Gerenciamento() {
                             </p>
                             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                                 <div className="rounded-md shadow">
-                                    <button type="button"
+                                    <button type="button" onClick={onNewParticipant}
                                         className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 md:py-4 md:text-lg md:px-10">
                                         Adicionar participante
                                     </button>
