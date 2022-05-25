@@ -1,4 +1,5 @@
 import { FirebaseApp, initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
 let firebaseApp: FirebaseApp;
 
@@ -14,3 +15,5 @@ if(!firebaseApp) {
 }
 
 export default firebaseApp;
+
+export const auth = getAuth();

@@ -1,12 +1,30 @@
 import { LockClosedIcon } from '@heroicons/react/solid'
-import { useState } from 'react';
-import Credential from '../data/models/credential';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import Credential from '../data/models/credentialModel';
 
 export default function Index() {
+  const router = useRouter();
+  const { user, login } = useAuth();
   const [credentials, setCredentials] = useState<Credential>(Credential.empty);
 
-  function onSignIn() {
-    console.log(credentials);
+  useEffect(() => {
+    if(user) {
+      router.push("/gerenciamento");
+    }
+  }, [router, user]);
+
+  async function onSignIn(event: any) {
+    try {
+      event.preventDefault();
+
+      await login(credentials.email, credentials.password);
+      
+      router.push("/gerenciamento");
+    } catch (error) {
+      throw error;
+    }
   }
 
   return (
@@ -64,7 +82,7 @@ export default function Index() {
               />
             </div>
             <div>
-              <button type="button" onClick={() => onSignIn()} className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <button type="button" onClick={onSignIn} className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                   <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true" />
                 </span>
